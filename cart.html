@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starial - Stationary At Your Home</title>
+    <style>
+        body {
+            font-family: '"Helvetica Neue", Helvetica, Arial, sans-serif';
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .navbar {
+            background-color: rgb(170, 242, 254);
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .navbar a {
+            color: black;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        .cart-empty {
+            text-align: center;
+        }
+
+        .cart-empty img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        .cart-items {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .quantity-controls button {
+            background-color: rgb(170, 242, 254);
+            border: none;
+            color: black;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin: 0 5px;
+        }
+
+        .quantity-controls button:hover {
+            background-color: rgb(150, 220, 240);
+        }
+
+        .total-section {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .action-buttons button {
+            background-color: rgb(170, 242, 254);
+            border: none;
+            color: black;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .action-buttons button:hover {
+            background-color: rgb(150, 220, 240);
+        }
+
+        .button {
+            background-color: rgb(170, 242, 254);
+            border: none;
+            color: black;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin: 20px auto;
+            display: block;
+        }
+
+        /* New alert styles */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #2a3138;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .alert button {
+            background-color: #00b5b8;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="index.html">← Back to Shop</a>
+        <h2>Your Cart</h2>
+        <span></span> <!-- For alignment purposes -->
+    </div>
+
+    <div class="container">
+        <div id="cart-content"></div>
+    </div>
+
+    <!-- New alert HTML -->
+    <div id="alert" class="alert">
+        <span id="alertMessage"></span>
+        <button onclick="closeAlert()">OK</button>
+    </div>
+
+    <script>
+        const cartContent = document.getElementById('cart-content');
+        let cart = JSON.parse(localStorage.getItem('cart')) || {};
+
+        function updateCart() {
+            if (Object.keys(cart).length === 0) {
+                cartContent.innerHTML = `
+                    <div class="cart-empty">
+                        <img src="basket.png" alt="basket" class="cart">
+                        <h3>Your Cart is Empty</h3>
+                        <a href="index.html"><button>Start Shopping</button></a>
+                    </div>
+                `;
+            } else {
+                let cartHtml = '<ul class="cart-items">';
+                let total = 0;
+
+                for (const key in cart) {
+                    const item = cart[key];
+                    const itemTotal = item.price * item.count;
+                    total += itemTotal;
+
+                    cartHtml += `
+                        <li class="cart-item">
+                            <div class="item-info">
+                                <h3>${item.name}</h3>
+                                <p>Price: Rs. ${item.price.toFixed(2)} ${item.isUniform ? '(varies)' : ''}</p>
+                            </div>
+                            <div class="quantity-controls">
+                                <button onclick="changeQuantity('${key}', -1)">-</button>
+                                <span>${item.count}</span>
+                                <button onclick="changeQuantity('${key}', 1)">+</button>
+                            </div>
+                            <p>Rs. ${itemTotal.toFixed(2)}</p>
+                        </li>
+                    `;
+                }
+
+                cartHtml += '</ul>';
+                cartHtml += `
+                    <div class="total-section">
+                        Total: Rs. ${total.toFixed(2)}
+                    </div>
+                    <div class="action-buttons">
+                        <button onclick="clearCart()">Clear Cart</button>
+                        <button onclick="checkout()">Checkout</button>
+                    </div>
+                `;
+
+                cartContent.innerHTML = cartHtml;
+            }
+        }
+
+        function changeQuantity(key, change) {
+            cart[key].count += change;
+            if (cart[key].count <= 0) {
+                delete cart[key];
+            } else if (change > 0) {
+                showAlert('Added ' + cart[key].name + ' to cart!');
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
+        }
+
+        function clearCart() {
+            if (confirm('Are you sure you want to clear your cart?')) {
+                cart = {};
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCart();
+            }
+        }
+
+        function checkout() {
+            window.location.href = 'checkout.html';
+        }
+
+        // New alert functions
+        function showAlert(message) {
+            const alert = document.getElementById('alert');
+            const alertMessage = document.getElementById('alertMessage');
+            alertMessage.textContent = message;
+            alert.style.display = 'flex';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+
+        function closeAlert() {
+            document.getElementById('alert').style.display = 'none';
+        }
+
+        // Initialize the cart display
+        updateCart();
+    </script>
+</body>
+
+</html>
