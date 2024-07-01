@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starial - Checkout</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .checkout-form {
+            flex: 2;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-summary {
+            flex: 1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-left: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .shipping-method,
+        .payment-method {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: rgb(170, 242, 254);
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: rgb(170, 242, 254);
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="checkout-form">
+            <h2>Checkout</h2>
+            <form id="checkoutForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" required>
+                </div>
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <select id="state" required>
+                        <option value="">Select State</option>
+                        <option value="MP">Madhya Pradesh</option>
+                        <!-- Add more states as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pincode">PIN Code</label>
+                    <input type="text" id="pincode" required>
+                </div>
+                <div class="shipping-method">
+                    <h3>Shipping Method</h3>
+                    <input type="radio" id="standardShipping" name="shipping" value="40" checked>
+                    <label for="standardShipping">Standard Shipping - ₹99</label>
+                </div>
+                <div class="payment-method">
+                    <h3>Payment Method</h3>
+                    <input type="radio" id="onlinePayment" name="payment" value="online" checked>
+                    <label for="onlinePayment">Pay Online</label>
+                </div>
+                <button type="submit">Pay now</button>
+            </form>
+        </div>
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <div id="orderItems"></div>
+            <div id="orderTotal"></div>
+        </div>
+    </div>
+
+    <script>
+        const cart = JSON.parse(localStorage.getItem('cart')) || {};
+        const orderItems = document.getElementById('orderItems');
+        const orderTotal = document.getElementById('orderTotal');
+        const checkoutForm = document.getElementById('checkoutForm');
+
+        function updateOrderSummary() {
+            let subtotal = 0;
+            orderItems.innerHTML = '';
+
+            for (const key in cart) {
+                const item = cart[key];
+                const itemTotal = item.price * item.count;
+                subtotal += itemTotal;
+
+                orderItems.innerHTML += `
+            <div class="order-item">
+                <span>${item.name} x ${item.count}</span>
+                <span>₹${itemTotal.toFixed(2)}</span>
+            </div>
+        `;
+            }
+
+            const shipping = 99;
+            const gst = 18; // Fixed GST of 18 Rs
+            const total = subtotal + shipping + gst;
+
+            orderTotal.innerHTML = `
+        <div class="order-item"><span>Subtotal:</span><span>₹${subtotal.toFixed(2)}</span></div>
+        <div class="order-item"><span>Shipping:</span><span>₹${shipping.toFixed(2)}</span></div>
+        <div class="order-item"><span>GST:</span><span>₹${gst.toFixed(2)}</span></div>
+        <div class="order-item" style="font-weight: bold;"><span>Total:</span><span>₹${total.toFixed(2)}</span></div>
+    `;
+        }
+
+        checkoutForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            // Here you would typically send the order data to your server
+            alert('Order placed successfully!');
+            // Clear the cart after successful order
+            localStorage.removeItem('cart');
+            window.location.href = 'index.html'; // Redirect to home page
+        });
+
+        // Initialize order summary
+        updateOrderSummary();
+    </script>
+</body>
+
+</html>
