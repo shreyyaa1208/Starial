@@ -284,6 +284,32 @@
             position: relative;
             display: inline-block;
         }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #2a3138;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .alert button {
+            background-color: #00b5b8;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
     </style>
 </head>
 
@@ -324,7 +350,7 @@
 
     <!-- Shop by Category Section -->
     <div id="categories-section" class="container">
-        <h2 style="padding: 30px; padding-top: 10px; padding-right: 10px; padding-bottom: 0px;">Shop by Category</h2>
+        <h2 style="padding: 30px 10x 10x 0;">Shop by Category</h2>
         <div class="categories-container">
             <button class="arrow left" onclick="scrollCategories(-1)">&#9664;</button>
             <div class="categories">
@@ -446,6 +472,11 @@
             us: starialofficial@gmail.com </a>| <a href="https://www.instagram.com/starial_/">Instagram</a></p>
     </footer>
 
+
+    <div id="alert" class="alert">
+        <span id="alertMessage"></span>
+        <button onclick="closeAlert()">OK</button>
+    </div>
     <!-- The rest of your HTML remains unchanged -->
 
     <script>
@@ -513,6 +544,7 @@
             }
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartDisplay();
+            showAlert(`Added ${name} to cart!`);
         }
 
         products.forEach(product => {
@@ -524,13 +556,42 @@
 
             button.addEventListener('click', () => {
                 addToCart(name, price, isUniform);
-                alert(`Added ${name} to cart!`);
+                //alert(`Added ${name} to cart!`);
             });
         });
 
         // Initialize cart display
         updateCartDisplay();
+
+        function showAlert(message) {
+            const alert = document.getElementById('alert');
+            const alertMessage = document.getElementById('alertMessage');
+            alertMessage.textContent = message;
+            alert.style.display = 'flex';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+
+        function closeAlert() {
+            document.getElementById('alert').style.display = 'none';
+        }
     </script>
 </body>
 
-</html>
+</html>   
+
+
+        
+           
+    
+        
+                   
+                
+            
+               
+      
+
+       
+        
+
